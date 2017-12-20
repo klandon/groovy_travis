@@ -1,0 +1,78 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "gradle.plugin.com.palantir:jacoco-coverage:0.4.0"
+    }
+}
+
+plugins {
+    id "org.sonarqube" version "2.6.1"
+}
+
+apply plugin: "com.palantir.jacoco-coverage"
+apply plugin: 'groovy'
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'org.sonarqube'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.4.5'
+    testCompile 'junit:junit:4.12'
+}
+
+sourceSets
+{
+    main
+    {
+        groovy
+        {
+            srcDirs = ['src']
+        }
+    }
+    test
+    {
+        groovy
+        {
+            srcDirs = ['test']
+        }
+    }
+}
+
+jacocoCoverage {
+    // Enforce minimum code coverage of 50% for every Java file.
+    fileThreshold 0.7
+
+}
+
+sonarqube {
+    properties {
+        property 'sonar.projectKey', "examples:sharedlibrnd:${archivesBaseName}"
+        property 'sonar.projectName', archivesBaseName
+        property 'sonar.module', archivesBaseName
+        property 'sonar.projectVersion', project.artifactBuildNumber
+        property 'sonar.sources', 'src'
+        property 'sonar.tests', 'test'
+        property "sonar.groovy.coveragePlugin", "jacoco"
+        property 'sonar.jacoco.reportPath', "build/jacoco/test.exec"
+        property 'sonar.junit.reportsPath',"build/reports/tests/xml"
+    }
+}
+
+
+test
+{
+    ignoreFailures = true
+    reports.junitXml.destination = file("build/reports/tests/xml")
+}
+
+def gitBranch = 'git rev-parse --abbrev-ref HEAD'.execute().getText().trim()
+project.artifactBuildNumber =  "git rev-list HEAD --count ${gitBranch}".execute().getText().trim()
