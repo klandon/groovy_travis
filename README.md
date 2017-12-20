@@ -1,4 +1,6 @@
-Status:(https://travis-ci.org/klandon/groovy_travis.svg?branch=master)
+Status:
+
+![](https://travis-ci.org/klandon/groovy_travis.svg?branch=master)
 
 gradle commands
 
